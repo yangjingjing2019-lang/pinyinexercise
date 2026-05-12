@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>拼音大挑戰 - 官方規則版</title>
+    <title>拼音大挑戰 - 專業教學版</title>
     <style>
         :root {
             --primary: #4a90e2;
@@ -12,153 +12,151 @@
             --warning: #f39c12;
             --bg: #f8fbff;
             --dark: #2c3e50;
+            --active-color: #ff4757;
         }
 
         body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
-            font-family: "Microsoft JhengHei", "源泉圓體", sans-serif;
-            background-color: var(--bg);
-            overflow: hidden; display: flex; flex-direction: column;
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            font-family: "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg); display: flex; flex-direction: column; overflow: hidden; 
         }
 
-        /* 第一面：規則與設定 */
-        #setup-overlay {
-            position: fixed; inset: 0; background: var(--bg); z-index: 3000;
-            display: flex; justify-content: center; align-items: center;
+        /* 介面分頁遮罩 */
+        .full-page-overlay {
+            position: fixed; inset: 0; background: var(--bg); z-index: 5000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 40px; text-align: center;
         }
 
-        .setup-card {
-            width: 90%; max-width: 850px; padding: 40px;
-            background: white; border-radius: 35px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-            display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px;
+        /* 右上角固定結束按鈕 */
+        .top-right-ctrl {
+            position: fixed; top: 20px; right: 20px; z-index: 1000;
         }
 
-        .rules-section { text-align: left; border-right: 2px solid #f0f0f0; padding-right: 30px; }
-        .rules-section h2 { color: var(--primary); margin-top: 0; border-left: 5px solid var(--primary); padding-left: 15px; }
-        .rule-item { margin-bottom: 15px; font-size: 1.05rem; line-height: 1.6; color: var(--dark); }
-        .rule-item b { color: var(--danger); }
-
-        .setup-section h2 { color: var(--dark); margin-top: 0; }
-        .group-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .group-inputs input { padding: 12px; border-radius: 10px; border: 2px solid #ddd; outline: none; transition: 0.3s; }
-        .group-inputs input:focus { border-color: var(--primary); }
-
-        /* 遊戲核心舞台 */
-        .game-stage {
-            flex: 1; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; padding: 20px;
+        /* 規則與設定卡片 */
+        .ui-card {
+            background: white; padding: 40px; border-radius: 30px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1); max-width: 850px; width: 85%;
         }
 
-        #timer { font-size: 5rem; font-weight: 900; color: var(--danger); margin-bottom: 10px; }
-
+        /* 遊戲舞台 */
+        .game-stage { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        
+        #current-turn-display { 
+            font-size: 2.2rem; font-weight: bold; padding: 12px 50px; 
+            background: #eee; border-radius: 60px; margin-bottom: 15px; 
+        }
+        .turn-active { background: var(--active-color) !important; color: white !important; animation: pulse 1s infinite; }
+        
+        #timer { font-size: 5.5rem; font-weight: 900; color: var(--danger); margin-bottom: 10px; }
+        
         #pinyin-card {
-            width: 90%; max-width: 800px; height: 320px;
-            background: white; border: 8px solid var(--dark); border-radius: 40px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s;
+            width: 80%; max-width: 750px; height: 280px; background: white;
+            border: 10px solid var(--dark); border-radius: 40px;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
+        .display-pinyin { font-size: 5rem; font-weight: bold; }
+        .display-word { font-size: 7rem; color: var(--primary); display: none; font-weight: bold; }
 
-        .display-pinyin { font-size: 5.5rem; color: var(--dark); font-weight: bold; }
-        .display-word { font-size: 7.5rem; color: var(--primary); display: none; letter-spacing: 15px; font-weight: bold; }
+        /* 按鈕樣式 */
+        .btn-group { margin-top: 25px; display: flex; gap: 15px; }
+        .btn { padding: 15px 35px; font-size: 1.4rem; border-radius: 18px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; box-shadow: 0 5px 0 #bbb; }
+        .btn-success { background: var(--success); color: white; box-shadow: 0 5px 0 #27ae60; }
+        .btn-next { background: var(--primary); color: white; box-shadow: 0 5px 0 #2980b9; }
+        .btn-end { background: var(--danger); color: white; box-shadow: 0 5px 0 #c0392b; font-size: 1.1rem; padding: 12px 25px; }
+        .btn:active { transform: translateY(3px); box-shadow: none; }
 
-        .btn-group { margin-top: 35px; display: flex; gap: 20px; }
-        .btn { padding: 18px 45px; font-size: 1.6rem; border-radius: 20px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-success { background: var(--success); color: white; box-shadow: 0 6px 0 #27ae60; }
-        .btn-redo { background: #bdc3c7; color: white; box-shadow: 0 6px 0 #95a5a6; }
-        .btn-next { background: var(--primary); color: white; box-shadow: 0 6px 0 #2980b9; }
-        .btn:active { transform: translateY(4px); box-shadow: none; }
+        /* 積分欄 */
+        .bottom-scoreboard { height: 160px; background: white; display: flex; justify-content: center; align-items: flex-end; padding: 10px 40px; gap: 15px; border-top: 4px solid #eee; }
+        .score-column { flex: 1; max-width: 140px; display: flex; flex-direction: column; align-items: center; }
+        .score-val { font-weight: 900; color: var(--primary); font-size: 1.8rem; }
+        .tube-outer { width: 60px; height: 60px; background: #f0f0f0; border: 3px solid #ddd; border-radius: 12px 12px 0 0; position: relative; overflow: hidden; }
+        .tube-fill { position: absolute; bottom: 0; width: 100%; background: var(--primary); transition: height 0.5s; }
+        .group-label { width: 100%; background: var(--dark); color: white; padding: 10px 0; text-align: center; font-size: 1.1rem; font-weight: bold; }
+        .active-group .group-label { background: var(--active-color); }
 
-        /* 底部動態積分牆 */
-        .bottom-scoreboard {
-            height: 200px; background: white; 
-            display: flex; justify-content: center; align-items: flex-end;
-            padding: 20px 40px; gap: 15px; border-top: 3px solid #eee;
+        /* 詞語清單卡片 */
+        .word-grid-full {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px;
+            width: 100%; max-width: 1200px; overflow-y: auto; padding: 10px;
         }
+        .word-item-big { background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .word-item-big b { font-size: 2.2rem; color: var(--primary); display: block; }
+        .word-item-big span { font-size: 1.2rem; color: #777; }
 
-        .score-column {
-            flex: 1; max-width: 180px; height: 100%; 
-            display: flex; flex-direction: column; align-items: center; transition: 0.3s;
-        }
-
-        .active-indicator { font-size: 1.5rem; height: 30px; opacity: 0; color: var(--danger); }
-        .score-column.active .active-indicator { opacity: 1; animation: bounce 0.6s infinite alternate; }
-        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-8px); } }
-
-        .score-val { font-weight: 900; color: var(--primary); font-size: 1.6rem; margin-bottom: 5px; }
-
-        .tube-outer {
-            width: 70%; height: 80px; background: #f0f0f0; border-radius: 12px 12px 0 0;
-            position: relative; overflow: hidden; border: 2px solid #ddd; border-bottom: none;
-        }
-
-        .tube-fill {
-            position: absolute; bottom: 0; width: 100%;
-            background: linear-gradient(to top, var(--primary), #82c0ff);
-            transition: height 0.8s ease-out;
-        }
-
-        .group-label {
-            width: 100%; background: var(--dark); color: white; padding: 10px 0;
-            text-align: center; font-weight: bold; border-radius: 0 0 12px 12px; font-size: 1.1rem;
-        }
-
-        #summary-screen {
-            position: fixed; inset: 0; background: white; z-index: 4000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-    <!-- 第一面：規則與分組 -->
-    <div id="setup-overlay">
-        <div class="setup-card">
-            <div class="rules-section">
-                <h2>📜 遊戲規則</h2>
-                <div class="rule-item"><b>1.</b> 看拼音，精確讀出詞語。</div>
-                <div class="rule-item"><b>2.</b> 小組合作，需在 <b>15 秒內</b> 讀出詞語並<b>口頭造一個句子</b>。</div>
-                <div class="rule-item"><b>3.</b> 發音準確且句子通順得 <b>10 分</b>，否則由下一組<b>補答</b>。</div>
-                <div style="margin-top: 30px; font-size: 0.9rem; color: #888;">* 點擊卡片可切換拼音/漢字對照</div>
+    <!-- 右上角固定結束按鈕（僅在遊戲中顯示） -->
+    <div class="top-right-ctrl" id="exit-btn-container" style="display:none;">
+        <button class="btn btn-end" onclick="confirmEnd()">結束並匯總</button>
+    </div>
+
+    <!-- 1. 規則說明 -->
+    <div id="page-rules" class="full-page-overlay">
+        <div class="ui-card">
+            <h1 style="font-size: 3rem; color: var(--primary);">📜 拼音大挑戰</h1>
+            <div style="text-align: left; display: inline-block; font-size: 1.8rem; line-height: 1.8; color: var(--dark);">
+                • <b>讀音</b>：準確讀出卡片上的拼音<br>
+                • <b>造句</b>：15 秒內完成讀詞與造句<br>
+                • <b>積分</b>：正確得 10 分，不正確則由其他組搶答
             </div>
-            <div class="setup-section">
-                <h2>👥 分組設定</h2>
-                <div class="group-inputs">
-                    <input type="text" id="g1" placeholder="第一組名稱">
-                    <input type="text" id="g2" placeholder="第二組名稱">
-                    <input type="text" id="g3" placeholder="第三組名稱">
-                    <input type="text" id="g4" placeholder="第四組名稱">
-                    <input type="text" id="g5" placeholder="第五組名稱">
-                    <input type="text" id="g6" placeholder="第六組名稱">
-                </div>
-                <button class="btn btn-next" style="width: 100%;" onclick="initGame()">開始比賽</button>
-            </div>
+            <br><br>
+            <button class="btn btn-next" style="font-size: 1.8rem;" onclick="showPage('page-setup')">下一步：設定組別</button>
         </div>
     </div>
 
-    <!-- 遊戲主舞台 -->
+    <!-- 2. 組別設定 -->
+    <div id="page-setup" class="full-page-overlay" style="display:none;">
+        <div class="ui-card">
+            <h1 style="font-size: 2.5rem;">👥 輸入小組名稱</h1>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0;">
+                <input type="text" id="g1" placeholder="第一組" style="padding:15px; font-size:1.2rem; border-radius:10px; border:2px solid #ddd;">
+                <input type="text" id="g2" placeholder="第二組" style="padding:15px; font-size:1.2rem; border-radius:10px; border:2px solid #ddd;">
+                <input type="text" id="g3" placeholder="第三組" style="padding:15px; font-size:1.2rem; border-radius:10px; border:2px solid #ddd;">
+                <input type="text" id="g4" placeholder="第四組" style="padding:15px; font-size:1.2rem; border-radius:10px; border:2px solid #ddd;">
+                <input type="text" id="g5" placeholder="第五組" style="padding:15px; font-size:1.2rem; border-radius:10px; border:2px solid #ddd;">
+                <input type="text" id="g6" placeholder="第六組" style="padding:15px; font-size:1.2rem; border-radius:10px; border:2px solid #ddd;">
+            </div>
+            <button class="btn btn-success" style="font-size: 1.8rem; width: 100%;" onclick="initGame()">開始比賽 🎮</button>
+        </div>
+    </div>
+
+    <!-- 遊戲主界面 -->
     <div class="game-stage">
+        <div id="current-turn-display">準備中</div>
         <div id="timer">15</div>
         <div id="pinyin-card" onclick="toggleFlip()">
-            <div class="display-pinyin" id="txt-pinyin">準備</div>
-            <div class="display-word" id="txt-word">GO!</div>
+            <div class="display-pinyin" id="txt-pinyin">讀音</div>
+            <div class="display-word" id="txt-word">漢字</div>
         </div>
         <div class="btn-group">
-            <button class="btn btn-redo" onclick="handleRedo()">補答</button>
+            <button class="btn btn-next" style="background:#95a5a6; box-shadow: 0 5px 0 #7f8c8d;" onclick="clearInterval(timer)">暫停計時</button>
             <button class="btn btn-success" id="btn-score" onclick="handleSuccess()" disabled>正確得分</button>
-            <button class="btn btn-next" onclick="nextRound()">下一題</button>
+            <button class="btn btn-next" id="btn-next" onclick="nextRound()">下一題 ➔</button>
         </div>
     </div>
 
-    <!-- 底部積分牆 -->
     <div class="bottom-scoreboard" id="scoreboard"></div>
 
-    <!-- 結算畫面 -->
-    <div id="summary-screen" style="display:none">
-        <h2 style="margin-bottom:10px">📖 本課拼音匯總</h2>
-        <div id="summary-content" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; width: 90%; max-height: 400px; overflow-y: auto; padding: 20px; background: #f4f4f4; border-radius: 20px; margin-bottom: 20px;"></div>
-        <h1 id="winner-text" style="color:var(--danger)"></h1>
-        <button class="btn btn-next" onclick="location.reload()">重新開始</button>
+    <!-- 3. 排名榜 -->
+    <div id="page-results" class="full-page-overlay" style="display:none;">
+        <h1 style="font-size: 3.5rem; color: var(--warning);">🏆 最終積分榜 🏆</h1>
+        <div id="rankings-container" style="width: 100%; max-width: 650px; margin: 20px 0;"></div>
+        <div class="btn-group">
+            <button class="btn btn-next" style="background:var(--warning); box-shadow: 0 5px 0 #d35400;" onclick="showPage('page-words')">查看詞語匯總</button>
+            <button class="btn btn-next" onclick="location.reload()">回首頁</button>
+        </div>
+    </div>
+
+    <!-- 4. 詞語匯總 -->
+    <div id="page-words" class="full-page-overlay" style="display:none; justify-content: flex-start;">
+        <h1 style="font-size: 2.8rem; margin: 20px 0;">📖 全課詞語匯總</h1>
+        <div class="word-grid-full" id="final-word-list"></div>
+        <button class="btn btn-next" style="margin: 25px;" onclick="showPage('page-results')">返回積分榜</button>
     </div>
 
     <audio id="s-ding" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
@@ -184,13 +182,23 @@
         let timer;
         let activeIdx = -1;
 
+        function showPage(pageId) {
+            document.querySelectorAll('.full-page-overlay').forEach(p => p.style.display = 'none');
+            document.getElementById(pageId).style.display = 'flex';
+            // 控制右上角按鈕的隱藏/顯示
+            document.getElementById('exit-btn-container').style.display = (pageId === 'game-stage') ? 'block' : 'none';
+        }
+
         function initGame() {
+            groups = [];
             for(let i=1; i<=6; i++) {
-                let n = document.getElementById(`g${i}`).value.trim();
-                if(n) groups.push({ name: n, score: 0, id: i });
+                let name = document.getElementById(`g${i}`).value.trim();
+                if(name) groups.push({ name: name, score: 0 });
             }
-            if(!groups.length) return alert("請輸入至少一個小組名稱！");
-            document.getElementById('setup-overlay').style.display = 'none';
+            if(!groups.length) return alert("請輸入組名！");
+            document.getElementById('page-setup').style.display = 'none';
+            document.getElementById('page-rules').style.display = 'none';
+            document.getElementById('exit-btn-container').style.display = 'block';
             renderScoreboard();
             nextRound();
         }
@@ -199,38 +207,37 @@
             const sb = document.getElementById('scoreboard');
             sb.innerHTML = groups.map((g, idx) => `
                 <div class="score-column" id="col-${idx}">
-                    <div class="active-indicator">▼</div>
                     <div class="score-val" id="val-${idx}">${g.score}</div>
-                    <div class="tube-outer">
-                        <div class="tube-fill" id="fill-${idx}" style="height: 0%"></div>
-                    </div>
+                    <div class="tube-outer"><div class="tube-fill" id="fill-${idx}" style="height: 0%"></div></div>
                     <div class="group-label">${g.name}</div>
                 </div>
             `).join('');
         }
 
-        function updateScores() {
-            groups.forEach((g, idx) => {
-                document.getElementById(`val-${idx}`).innerText = g.score;
-                document.getElementById(`fill-${idx}`).style.height = Math.min(g.score, 100) + "%";
-                document.getElementById(`col-${idx}`).classList.toggle('active', idx === activeIdx);
-            });
-        }
-
         function nextRound() {
             currentIndex++;
-            if(currentIndex >= quizData.length) return showSummary();
-            if(!groupQueue.length) groupQueue = groups.map((_, i) => i).sort(() => Math.random() - 0.5);
-            
+            if(currentIndex >= quizData.length) return showResults();
+            if(groupQueue.length === 0) groupQueue = groups.map((_, i) => i).sort(() => Math.random() - 0.5);
             activeIdx = groupQueue.pop();
+            
             document.getElementById('txt-pinyin').innerText = quizData[currentIndex].p;
             document.getElementById('txt-word').innerText = quizData[currentIndex].w;
             document.getElementById('txt-pinyin').style.display = 'block';
             document.getElementById('txt-word').style.display = 'none';
             document.getElementById('btn-score').disabled = false;
-            
-            updateScores();
+            updateUI();
             startTimer();
+        }
+
+        function updateUI() {
+            groups.forEach((g, idx) => {
+                document.getElementById(`val-${idx}`).innerText = g.score;
+                document.getElementById(`fill-${idx}`).style.height = Math.min(g.score * 1.5, 100) + "%";
+                document.getElementById(`col-${idx}`).classList.toggle('active-group', idx === activeIdx);
+            });
+            const display = document.getElementById('current-turn-display');
+            display.innerText = `當前：${groups[activeIdx].name}`;
+            display.className = 'turn-active';
         }
 
         function startTimer() {
@@ -241,20 +248,15 @@
                 left--;
                 document.getElementById('timer').innerText = left;
                 if(left <= 3 && left > 0) document.getElementById('s-tick').play();
-                if(left <= 0) { 
-                    clearInterval(timer); 
-                    document.getElementById('s-ding').play();
-                    document.getElementById('btn-score').disabled = true;
-                }
+                if(left <= 0) { clearInterval(timer); document.getElementById('s-ding').play(); document.getElementById('btn-score').disabled = true; }
             }, 1000);
         }
 
         function toggleFlip() {
-            const w = document.getElementById('txt-word');
-            const p = document.getElementById('txt-pinyin');
-            const isH = (w.style.display === 'none');
-            w.style.display = isH ? 'block' : 'none';
-            p.style.display = isH ? 'none' : 'block';
+            const w = document.getElementById('txt-word'), p = document.getElementById('txt-pinyin');
+            const isP = w.style.display === 'none';
+            w.style.display = isP ? 'block' : 'none';
+            p.style.display = isP ? 'none' : 'block';
         }
 
         function handleSuccess() {
@@ -262,22 +264,29 @@
             groups[activeIdx].score += 10;
             document.getElementById('s-ding').play();
             if(document.getElementById('txt-word').style.display === 'none') toggleFlip();
-            updateScores();
+            updateUI();
             document.getElementById('btn-score').disabled = true;
         }
 
-        function handleRedo() {
-            clearInterval(timer);
-            document.getElementById('s-ding').play();
-            // 補答邏輯：通常是手動判定，這裡僅停止計時
+        function confirmEnd() {
+            if(confirm("確定要現在結束遊戲並結算嗎？")) {
+                showResults();
+            }
         }
 
-        function showSummary() {
+        function showResults() {
             clearInterval(timer);
-            document.getElementById('summary-screen').style.display = 'flex';
-            document.getElementById('summary-content').innerHTML = quizData.map(d => `<div style="background:white; padding:10px; border-radius:10px; border:1px solid #ddd; text-align:center;"><b>${d.p}</b><br>${d.w}</div>`).join('');
-            const winner = [...groups].sort((a,b) => b.score - a.score)[0];
-            document.getElementById('winner-text').innerText = `🏆 冠軍：${winner.name} (${winner.score}分)`;
+            showPage('page-results');
+            const sorted = [...groups].sort((a,b) => b.score - a.score);
+            document.getElementById('rankings-container').innerHTML = sorted.map((g, i) => `
+                <div style="font-size:2rem; margin:15px 0; background:white; padding:15px; border-radius:15px; border-left:15px solid ${i==0?'#f1c40f':'#bdc3c7'}; text-align:left;">
+                    <b>NO.${i+1}</b> ${g.name} <span style="float:right; color:var(--primary)">${g.score} 分</span>
+                </div>
+            `).join('');
+
+            document.getElementById('final-word-list').innerHTML = quizData.map(d => `
+                <div class="word-item-big"><b>${d.w}</b><span>${d.p}</span></div>
+            `).join('');
         }
     </script>
 </body>
